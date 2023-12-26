@@ -1,0 +1,7 @@
+# BEGIN: /d:/github/JunyiOnlineLearningActive/.gitignore
+venv/
+build/
+*.egg-info/
+Data/Row/
+Data/Processed/user_problem_list/
+# END: /d:/github/JunyiOnlineLearningActive/.gitignore
