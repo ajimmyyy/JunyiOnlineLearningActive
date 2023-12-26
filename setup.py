@@ -10,6 +10,7 @@ setup(
         "pandas",
         'numpy',
         "mlxtend",
-        "matplotlib"
+        "matplotlib",
+        "tqdm",
     ],
 )
