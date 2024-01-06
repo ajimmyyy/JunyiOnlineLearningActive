@@ -1,6 +1,7 @@
 from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import fpgrowth
 from ast import literal_eval
+from tqdm import tqdm
 import pandas as pd
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -11,8 +12,13 @@ class SelectFrequentItems:
         return {group: df for group, df in groupedDf}
 
     def ReshapeFrame(self, dataFrame, selectDf, superclass = "uuid", subclass = "ucid"):
-        df = dataFrame.groupby(superclass)[subclass].apply(list).reset_index()
-        df[subclass] = df[subclass].apply(self.__FilterList, args = (selectDf, subclass,))
+        filteredDf = dataFrame[dataFrame["is_correct"] == False]
+
+        tqdm.pandas(desc="filting...")
+        df = filteredDf.groupby(superclass)[subclass].progress_apply(list).reset_index()
+
+        tqdm.pandas(desc="Reshape...")
+        df[subclass] = df[subclass].progress_apply(self.__FilterList, args = (selectDf, subclass,))
 
         df = df[df[subclass].apply(len) > 0]
         return df
@@ -53,12 +59,10 @@ class SelectFrequentItems:
             for j, otherRow in dataFrame.iterrows():
                 if i != j and set(row['itemsets']).issubset(set(otherRow['itemsets'])):
                     remove.append(i)
-
         filteredDf = dataFrame.drop(index=remove).reset_index(drop=True)
         return filteredDf
     
     def MapIdsToNames(self, dataFrame, problemDf, idCol = 'ucid', nameCol = 'content_pretty_name'):
-        dataFrame['itemsets'] = dataFrame['itemsets'].apply(literal_eval)
         dataFrame['itemsets'] = dataFrame['itemsets'].apply(self.__mapRowIdToName, args = (problemDf, idCol, nameCol,))
         return dataFrame
         
